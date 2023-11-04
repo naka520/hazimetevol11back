@@ -1,16 +1,16 @@
-# api/main.py
-
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from . import crud, models, schemas, database
-from .database import engine
+from .database import SessionLocal, engine
+from fastapi.middleware.cors import CORSMiddleware
 
+
+# DBモデルをDBに作成する（実運用ではAlembicなどのマイグレーションツールを使用）
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# CORSミドルウェアを追加
+# CORS設定
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 全てのオリジンを許可
@@ -19,22 +19,22 @@ app.add_middleware(
     allow_headers=["*"],  # 全てのヘッダーを許可
 )
 
-# 依存関係
+# DBセッションの依存関係
 def get_db():
-    db = database.SessionLocal()
+    db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
+# ユーザーの作成
 @app.post("/users/", response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
+    if crud.get_user_by_email(db, email=user.email):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
-
+# テスト用のHello Worldエンドポイント
 @app.get("/hello")
-async def hello():
-    return {"message": "hello world!"}
+def read_root():
+    return {"message": "Hello World"}
