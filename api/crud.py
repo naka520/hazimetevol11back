@@ -16,3 +16,12 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
+
+def authenticate_user(db: Session, username: str, email: str, password: str):
+    user = db.query(models.User).filter(models.User.email == email, models.User.username == username).first()
+    if not user:
+        return False
+    if not pwd_context.verify(password, user.hashed_password):
+        return False
+    return user
+
