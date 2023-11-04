@@ -11,6 +11,7 @@ fastapi = "^0.104.1"
 uvicorn = {extras = ["standard"], version = "^0.23.2"}
 sqlalchemy = "^1.4.22"
 passlib = "^1.7.4"
+bcrypt = "^3.2.0"
 
 [build-system]
 requires = ["poetry-core"]
