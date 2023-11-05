@@ -55,15 +55,9 @@ def login(user_login: schemas.UserLogin, db: Session = Depends(get_db)):
         )
     # トークン生成時にUUIDを使用
     access_token_expires = timedelta(days=10000)  # 有効期限は適切な値に設定
-    access_token = create_access_token(
-        data={"sub": str(user.uuid)}, expires_delta=access_token_expires
-    )
-
-    response = schemas.Token
-    response.access_token = access_token
-    response.token_type = "bearer"
-
-    return response
+    access_token = create_access_token(user=user, expires_delta=access_token_expires)
+    response = schemas.Token(access_token=access_token, token_type="bearer")
+    return response 
 
 # テスト用のHello Worldエンドポイント
 @app.get("/hello")
