@@ -24,8 +24,11 @@ def authenticate_user(db: Session, username: str, email: str, password: str):
         return False
     return user
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
+def create_access_token(user: User, expires_delta: timedelta = None):
+    to_encode = {
+        "sub": user.username,  # または user.email - トークンの主張(subject)にユーザー名またはメールを設定
+        "user_uuid": str(user.uuid)  # ユーザーのUUIDをトークンに含める
+    }
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:

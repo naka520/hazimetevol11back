@@ -1,21 +1,27 @@
-# python3.9のイメージをダウンロード
+#Python 3.9のイメージを使用
 FROM python:3.9-buster
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /src
-# 必要なパッケージをインストール
-RUN apt-get update && apt-get install -y sqlite3
 
-# pipを使ってpoetryをインストール
+#必要なMySQL依存パッケージをインストール
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    gcc \
+    python3-dev
+
+#pipを使ってpoetryをインストール
 RUN pip install poetry
 
-# poetryの定義ファイルをコピー (存在する場合)
-COPY pyproject.toml* poetry.lock* ./
-COPY ./app.db /src/app.db
+#poetryの定義ファイルをコピー
+COPY pyproject.toml poetry.lock* ./
 
-# poetryでライブラリをインストール (pyproject.tomlが既にある場合)
+#poetryの設定を行い、依存関係をインストール前にlockファイルを更新
 RUN poetry config virtualenvs.in-project true
-RUN if [ -f pyproject.toml ]; then poetry install --no-root; fi
+RUN poetry update --lock
 
-# uvicornのサーバーを立ち上げる
+#依存関係をインストール
+RUN poetry install --no-root --no-dev
+
+#uvicornのサーバーを立ち上げるためのエントリポイントを設定
 ENTRYPOINT ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]

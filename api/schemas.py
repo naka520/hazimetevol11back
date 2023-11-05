@@ -1,15 +1,15 @@
 # api/schemas.py
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, UUID4
 
 class UserCreate(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     username: str
 
 class UserOut(BaseModel):
-    id: int
-    email: str
+    uuid: UUID4  # UUIDフィールドを追加
+    email: EmailStr
     username: str
 
     class Config:

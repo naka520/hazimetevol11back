@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import status
 from datetime import timedelta
 from .auth import authenticate_user, create_access_token
+import uuid  # UUIDを生成するために追加
 
 
 # DBモデルをDBに作成する（実運用ではAlembicなどのマイグレーションツールを使用）
@@ -33,10 +34,16 @@ def get_db():
 # ユーザーの作成
 @app.post("/users/", response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    if crud.get_user_by_email(db, email=user.email):
+    # Emailがすでに登録されているか確認
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    # UUIDを生成
+    user_id = str(uuid.uuid4())
+    # CRUD関数を使ってユーザーを作成
+    return crud.create_user(db=db, user=user, uuid=user_id)
 
+# @app.post("/login", response_model=schemas.Token)
 @app.post("/login", response_model=schemas.Token)
 def login(user_login: schemas.UserLogin, db: Session = Depends(get_db)):
     user = crud.authenticate_user(db, user_login.username, user_login.email, user_login.password)
@@ -46,11 +53,17 @@ def login(user_login: schemas.UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect login details",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(days=10000)
+    # トークン生成時にUUIDを使用
+    access_token_expires = timedelta(days=10000)  # 有効期限は適切な値に設定
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": str(user.uuid)}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    response = schemas.Token
+    response.access_token = access_token
+    response.token_type = "bearer"
+
+    return response
 
 # テスト用のHello Worldエンドポイント
 @app.get("/hello")

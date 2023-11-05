@@ -1,9 +1,33 @@
-version: "3"
+version: "3.9" # docker-compose.ymlのバージョンを指定
+
 services:
   demo-app:
     build: .
     volumes:
-      - .dockervenv:/src/.venv
-      - .:/src
+      - .dockervenv:/src/.venv # ローカルのディレクトリをコンテナ内にマウント
+      - .:/src # アプリケーションのソースコードのマウント
     ports:
-      - 8000:8000 # ホストマシンのポート8000を、docker内のポート8000に接続する
+      - "8000:8000" # ホストのポート8000をコンテナのポート8000にマッピング
+    environment: # 環境変数を設定
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=mysqldb
+      - MYSQL_USER=naka520
+      - MYSQL_PASSWORD=Sjmh7346
+    depends_on:
+      - mysql # demo-appがmysqlサービスに依存していることを指定
+
+  mysql:
+    image: mysql:5.7 # 使用するMySQLのイメージ
+    environment: # MySQLサービスの環境変数
+      - MYSQL_ROOT_PASSWORD=sjmh7346
+      - MYSQL_DATABASE=mysqldb
+      - MYSQL_USER=naka520
+      - MYSQL_PASSWORD=Sjmh7346
+    ports:
+      - "3306:3306" # MySQLのデフォルトポートをホストに公開
+    volumes:
+      - mysql-data:/var/lib/mysql # データを保持するためのボリューム
+
+volumes: # 使用するボリュームを定義
+  mysql-data: # MySQLデータ用のボリューム
+
