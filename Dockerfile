@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y \
 
 #pipを使ってpoetryをインストール
 RUN pip install poetry
-
 #poetryの定義ファイルをコピー
 COPY pyproject.toml poetry.lock* ./
 

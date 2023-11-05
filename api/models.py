@@ -10,6 +10,6 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     uuid = Column(String(36), unique=True, index=True, default=lambda: str(uuid.uuid4()))  # UUIDを文字列として保存
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    username = Column(String)
+    email = Column(String(255), unique=True, index=True)
+    hashed_password = Column(String(60),nullable=False)
+    username = Column(String(30))
