@@ -10,8 +10,10 @@ RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev
 
+RUN pip install PyJWT
 #pipを使ってpoetryをインストール
 RUN pip install poetry
+RUN pip install --upgrade pip
 #poetryの定義ファイルをコピー
 COPY pyproject.toml poetry.lock* ./
 
