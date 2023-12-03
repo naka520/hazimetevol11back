@@ -17,4 +17,4 @@ COPY Pipfile Pipfile.lock ./
 RUN pipenv install --system --deploy
 
 #uvicornのサーバーを立ち上げるためのエントリポイントを設定
-CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload", "--port", "80"]
+CMD ["pipenv", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload", "--port", "80"]
