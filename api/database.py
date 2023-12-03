@@ -1,22 +1,29 @@
-# api/database.py
-
-from sqlalchemy import create_engine
+from typing import Generator
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
-from .models import Base
+from sqlalchemy.orm.session import Session
+import os
+import dotenv
 
-SQLALCHEMY_DATABASE_URL = "mysql+mysqldb://naka520:Sjmh7346@mysql/mysqldb"
+dotenv.load_dotenv()
 
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+POSTGRES_USER = os.environ["POSTGRES_USER"]
+POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+POSTGRES_PORT = os.environ["POSTGRES_PORT"]
+POSTGRES_DB = os.environ["POSTGRES_DB"]
 
-Base.metadata.create_all(bind=engine)
+uri = 'postgresql://{}:{}@{}:{}/{}'.format(POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB)
+engine = create_engine(uri, pool_recycle=3600)
+SessionLocal = sessionmaker(autocommit=False, autoflush=True, expire_on_commit=False, bind=engine)
 
-def get_db():
-    db = SessionLocal()
+
+def get_db() -> Generator[Session, None, None]:
+    db_session: Session | None = None
     try:
-        yield db
+        db_session = SessionLocal()
+        yield db_session
     finally:
-        db.close()
+        if db_session is not None:
+            db_session.close()

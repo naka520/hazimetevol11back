@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+uvicorn = "*"
+sqlalchemy = "*"
+passlib = "~=1.7.4"
+bcrypt = "~=3.2.0"
+python-jose = "~=3.3.0"
+PyJWT = "~=2.1.0"
+python-dotenv = "*"
+psycopg2 = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

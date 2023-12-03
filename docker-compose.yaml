@@ -4,30 +4,23 @@ services:
   demo-app:
     build: .
     volumes:
-      - .dockervenv:/src/.venv # ローカルのディレクトリをコンテナ内にマウント
       - .:/src # アプリケーションのソースコードのマウント
     ports:
-      - "8000:8000" # ホストのポート8000をコンテナのポート8000にマッピング
-    environment: # 環境変数を設定
-      - MYSQL_HOST=mysql
-      - MYSQL_DATABASE=mysqldb
-      - MYSQL_USER=naka520
-      - MYSQL_PASSWORD=Sjmh7346
+      - "80:80"
+    env_file: # .env ファイルを指定
+      - .env
     depends_on:
-      - mysql # demo-appがmysqlサービスに依存していることを指定
+      - db
 
-  mysql:
-    image: mysql:5.7 # 使用するMySQLのイメージ
-    environment: # MySQLサービスの環境変数
-      - MYSQL_ROOT_PASSWORD=sjmh7346
-      - MYSQL_DATABASE=mysqldb
-      - MYSQL_USER=naka520
-      - MYSQL_PASSWORD=Sjmh7346
-    ports:
-      - "3306:3306" # MySQLのデフォルトポートをホストに公開
+  db:
+    image: postgres:14
     volumes:
-      - mysql-data:/var/lib/mysql # データを保持するためのボリューム
+      - db-data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
 
 volumes: # 使用するボリュームを定義
-  mysql-data: # MySQLデータ用のボリューム
+  db-data: # dbデータ用のボリューム
 

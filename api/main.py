@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from . import crud, models, schemas, database
-from .database import SessionLocal, engine
+from .database import SessionLocal, engine ,get_db
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import status
 from datetime import timedelta
@@ -22,14 +22,6 @@ app.add_middleware(
     allow_methods=["*"],  # 全てのメソッドを許可
     allow_headers=["*"],  # 全てのヘッダーを許可
 )
-
-# DBセッションの依存関係
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # ユーザーの作成
 @app.post("/users/", response_model=schemas.UserOut)
