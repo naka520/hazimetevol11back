@@ -21,6 +21,16 @@ services:
     ports:
       - "5432:5432"
 
+  adminer:
+    container_name: adminer
+    hostname: adminer
+    image: adminer:4.7.5
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
 volumes: # 使用するボリュームを定義
   db-data: # dbデータ用のボリューム
 
